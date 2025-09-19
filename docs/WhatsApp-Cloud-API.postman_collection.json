@@ -1,0 +1,201 @@
+{
+  "info": {
+    "name": "WhatsApp Cloud API",
+    "_postman_id": "e7b3a1d0-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "description": "Flujo completo: listar WABA, listar números, verificar, registrar y enviar mensajes",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Listar WABA",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{TOKEN}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "https://graph.facebook.com/v19.0/{{BUSINESS_ID}}/owned_whatsapp_business_accounts?fields=id,name",
+          "protocol": "https",
+          "host": ["graph", "facebook", "com"],
+          "path": ["v19.0", "{{BUSINESS_ID}}", "owned_whatsapp_business_accounts"],
+          "query": [
+            { "key": "fields", "value": "id,name" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "2. Listar números (Phone Numbers)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{TOKEN}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "https://graph.facebook.com/v19.0/{{WABA_ID}}/phone_numbers?fields=id,display_phone_number,verified_name,account_mode,verification_status",
+          "protocol": "https",
+          "host": ["graph", "facebook", "com"],
+          "path": ["v19.0", "{{WABA_ID}}", "phone_numbers"],
+          "query": [
+            { "key": "fields", "value": "id,display_phone_number,verified_name,account_mode,verification_status" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "3. Pedir código (request_code)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{TOKEN}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "https://graph.facebook.com/v19.0/{{PHONE_NUMBER_ID}}/request_code",
+          "protocol": "https",
+          "host": ["graph", "facebook", "com"],
+          "path": ["v19.0", "{{PHONE_NUMBER_ID}}", "request_code"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"code_method\": \"SMS\",\n  \"language\": \"es\"\n}"
+        }
+      }
+    },
+    {
+      "name": "4. Verificar código (verify_code)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{TOKEN}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "https://graph.facebook.com/v19.0/{{PHONE_NUMBER_ID}}/verify_code",
+          "protocol": "https",
+          "host": ["graph", "facebook", "com"],
+          "path": ["v19.0", "{{PHONE_NUMBER_ID}}", "verify_code"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"code\": \"123456\"\n}"
+        }
+      }
+    },
+    {
+      "name": "5. Registrar número (register)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{TOKEN}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "https://graph.facebook.com/v19.0/{{PHONE_NUMBER_ID}}/register",
+          "protocol": "https",
+          "host": ["graph", "facebook", "com"],
+          "path": ["v19.0", "{{PHONE_NUMBER_ID}}", "register"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"messaging_product\": \"whatsapp\",\n  \"pin\": \"123456\"\n}"
+        }
+      }
+    },
+    {
+      "name": "6. Enviar mensaje de texto (24h)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{TOKEN}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "https://graph.facebook.com/v19.0/{{PHONE_NUMBER_ID}}/messages",
+          "protocol": "https",
+          "host": ["graph", "facebook", "com"],
+          "path": ["v19.0", "{{PHONE_NUMBER_ID}}", "messages"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"5989XXXXXXXX\",\n  \"type\": \"text\",\n  \"text\": { \"body\": \"Hola, esto es una prueba desde Postman 🚀\" }\n}"
+        }
+      }
+    },
+    {
+      "name": "7. Enviar plantilla (fuera de 24h)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{TOKEN}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "https://graph.facebook.com/v19.0/{{PHONE_NUMBER_ID}}/messages",
+          "protocol": "https",
+          "host": ["graph", "facebook", "com"],
+          "path": ["v19.0", "{{PHONE_NUMBER_ID}}", "messages"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"5989XXXXXXXX\",\n  \"type\": \"template\",\n  \"template\": { \"name\": \"hello_world\", \"language\": { \"code\": \"en_US\" } }\n}"
+        }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "TOKEN", "value": "" },
+    { "key": "BUSINESS_ID", "value": "538918002616853" },
+    { "key": "WABA_ID", "value": "" },
+    { "key": "PHONE_NUMBER_ID", "value": "" }
+  ]
+}
+

@@ -1,0 +1,26 @@
+2025-09-19 12:20:26 [ERROR]: ❌ Error procesando mensaje de 5493416777021: logger is not defined
+2025-09-19 12:21:39 [ERROR]: sendReply failed for 5493416777021: 400 {"error":{"message":"(#100) The parameter text['body'] is required.","type":"OAuthException","code":100,"fbtrace_id":"ADjLlSxjLi_MphSBYmRhEG1"}}
+2025-09-19 12:21:39 [ERROR]: Error enviando mensaje a 5493416777021: WhatsApp API error
+2025-09-19 12:21:39 [ERROR]: ❌ Error procesando mensaje de 5493416777021: WhatsApp API error
+2025-09-19 12:21:55 [ERROR]: ❌ Error procesando mensaje de 5493416777021: saveName is not defined
+2025-09-19 12:29:17 [ERROR]: ❌ Error procesando mensaje de 5493416777021: saveName is not defined
+2025-09-19 12:39:20 [ERROR]: ❌ Error procesando mensaje de 5493416777021: hasProcessedMessage is not defined
+2025-09-19 12:50:12 [ERROR]: ❌ Error procesando mensaje de 5493416777021: markSessionMessage is not defined
+2025-09-19 12:51:35 [ERROR]: ❌ Error procesando mensaje de 5493416777021: markSessionMessage is not defined
+2025-09-19 12:52:14 [ERROR]: ❌ Error procesando mensaje de 5493416777021: markSessionMessage is not defined
+2025-09-19 12:52:30 [ERROR]: ❌ Error procesando mensaje de 5493416777021: markSessionMessage is not defined
+2025-09-19 12:55:40 [ERROR]: ❌ Error procesando mensaje de 5493416777021: markMessageProcessing is not defined
+2025-09-19 12:57:08 [ERROR]: ❌ Error procesando mensaje de 5493416777021: markSessionMessage is not defined
+2025-09-19 12:57:31 [ERROR]: ❌ Error procesando mensaje de 5493416777021: markSessionMessage is not defined
+2025-09-19 13:00:48 [ERROR]: ❌ Error procesando mensaje de 5493416777021: markMessageProcessing is not defined
+2025-09-19 13:10:04 [ERROR]: markMessageProcessing error for wamid.HBgNNTQ5MzQxNjc3NzAyMRUCABIYIEFDMUFCN0I4OUYyNjUxNjlBQzg4Nzk1MDRCNkFERDU1AA==: Invalid object name 'WA_ProcessedMessages'.
+2025-09-19 13:10:04 [ERROR]: ❌ Error procesando mensaje de 5493416777021: Invalid object name 'WA_ProcessedMessages'.
+2025-09-19 13:11:04 [ERROR]: markMessageProcessing error for wamid.HBgNNTQ5MzQxNjc3NzAyMRUCABIYIEFDRDlCMUVCODI3N0ZBNzY4QkQxNEE1QTY2NUI1MTA0AA==: Invalid object name 'WA_ProcessedMessages'.
+2025-09-19 13:11:04 [ERROR]: ❌ Error procesando mensaje de 5493416777021: Invalid object name 'WA_ProcessedMessages'.
+2025-09-19 13:18:43 [ERROR]: ensureSessionRow error for 5493416777021: Invalid column name 'Datos'.
+2025-09-19 13:18:43 [ERROR]: ❌ Error procesando mensaje de 5493416777021: Invalid column name 'Datos'.
+2025-09-19 13:25:25 [ERROR]: sendReply failed for 5493416777021: 400 {"error":{"message":"(#100) The parameter text['body'] is required.","type":"OAuthException","code":100,"fbtrace_id":"AJm7pkM58MQsypH-zd_YCn8"}}
+2025-09-19 13:25:25 [ERROR]: Error enviando mensaje a 5493416777021: WhatsApp API error
+2025-09-19 13:25:25 [ERROR]: ❌ Error procesando mensaje de 5493416777021: WhatsApp API error
+2025-09-19 13:37:12 [ERROR]: ❌ Error procesando mensaje de 5493416777021: saveIncomingMessage is not defined
+2025-09-19 13:41:18 [ERROR]: ❌ Error procesando mensaje de 5493416777021: insertMessageLog is not defined
