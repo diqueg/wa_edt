@@ -15,7 +15,7 @@ const { insertMessageLog } = require("../db/messageLog");
 const { normalizeAddress, normalizeLocationToAddress } = require("../services/normalizer");
 const { getSession, ensureSession, updateSessionState, updateSessionData, markSessionMessage, markMessageProcessing } = require("../db/session");
 const logger = require("../utils/logger");
-const { sendReply } = require("../services/messaging");
+const { sendAndLogReply } = require("../services/messaging");
 
 // --- helper
 function isLikelyAddress(text) {
@@ -51,25 +51,23 @@ function extractText(msg) {
 async function handleInboundMessage(msg) {
   const waId = msg.from;
   const text = extractText(msg);
-  // obtener o crear sesión de forma segura
   const messageId = msg.id || msg.messageId || msg.stanzaId;
+  
+  // 1) dedupe (una sola vez)
   const ok = messageId ? await markMessageProcessing(messageId, waId) : true;
   if (!ok) {
     logger.info(`Skipping duplicate message ${messageId} from ${waId}`);
-    return; // respondé 200 al webhook
+    return;
   }
- 
-  // loguear mensaje entrante (asegurate de tener esta función)
+  
+  // 2) registrar incoming (usa tu insertMessageLog)
   await insertMessageLog({
-  WaId: waId,
-  TipoMensaje: "incoming",
-  Contenido: text || null,
-  Timestamp: new Date(), // o msg.timestamp si viene del proveedor
-  Metadata: {
-    messageId: messageId, // clave para dedupe
-    raw: msg
-  }
-});
+    WaId: waId,
+    TipoMensaje: "incoming",
+    Contenido: text || null,
+    Timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date(),
+    Metadata: { messageId, raw: msg }
+  });
   logger.info(`Mensage logged ${messageId} for ${waId}`);
   let session = await getSession(waId);
   // Si no existe sesión: crear/upsert y pedir el nombre
@@ -80,7 +78,7 @@ async function handleInboundMessage(msg) {
 
     // enviar prompt para pedir nombre y terminar el procesamiento de este mensaje
     const welcome = "¡Hola! Para comenzar, Me dirias tu nombre.";
-    await sendReply(waId, welcome);
+    await sendAndLogReply({ messageId, waId, replyText, phoneNumberId });
 
     // guardamos sessionData inicial vacío (opcional)
     await updateSessionData(waId, {}); // asegura que exista Datos como JSON
@@ -109,7 +107,7 @@ async function handleInboundMessage(msg) {
       const name = (text || "").trim();
       if (!name) {
         replyText = "No entendí tu nombre. ¿Podés escribirlo de nuevo, por favor?";
-        await sendReply(waId, replyText);
+        await sendAndLogReply({ messageId, waId, replyText, phoneNumberId });
         break;
       }
       // guardamos el nombre en la tabla de clientes o en session.Datos según tu diseño
@@ -136,7 +134,7 @@ async function handleInboundMessage(msg) {
           replyText = `Gracias, ${name}. Estas son tus direcciones más usadas:\n\n${options}\n\n${frequentAddresses.length + 1}. Otra dirección\n\nRespondé con el número o escribí una nueva dirección.`;
         }
       }
-      await sendReply(waId, replyText);
+      await sendAndLogReply({ messageId, waId, replyText, phoneNumberId });
       // await saveOutgoingReply({
       //   MessageId: /* generar id si aplicable */ messageId + ":reply",
       //   WaId: waId,
@@ -242,17 +240,21 @@ async function handleInboundMessage(msg) {
       // caso por defecto: si el estado es IDLE o algo inesperado, invitá al usuario
       if (session.EstadoConversacional === "IDLE" || !session.EstadoConversacional) {
         await updateSessionState(waId, "AWAITING_NAME");
-        await sendReply(waId, "¡Hola! Antes de continuar, ¿cómo te llamás?");
+        replyText="¡Hola! Antes de continuar, ¿cómo te llamás?"
+        await sendAndLogReply({ messageId, waId, replyText, phoneNumberId });
         break;
       }
       replyText = "No reconozco tu estado actual. Decime 'menu' para empezar de nuevo.";
-      await sendReply(waId, replyText);
+      // en lugar de await sendReply(waId, replyText);
+      await sendAndLogReply({ messageId, waId, replyText, phoneNumberId });
+
       break;
     }
   } // end switch
 
   // enviar reply (tu función actual de envío)
-  await sendReply(waId, replyText);
+  await sendAndLogReply({ messageId, waId, replyText, phoneNumberId });
+
 }
 
 

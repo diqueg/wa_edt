@@ -3,9 +3,9 @@ const logger = require("../utils/logger");
 require('dotenv').config();
 const WHATSAPP_API_URL = process.env.WHATSAPP_API_URL;
 const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
-
+const { sendReply } = require('../utils/sendMessage'); // tu sendReply existente
 // log y validación temprana
-logger.info(`ENV CHECK: WHATSAPP_API_URL=${WHATSAPP_API_URL ? '[set]' : '[undefined]'} WHATSAPP_TOKEN=${WHATSAPP_TOKEN ? '[set]' : '[undefined]'}`);
+//logger.info(`ENV CHECK: WHATSAPP_API_URL=${WHATSAPP_API_URL ? '[set]' : '[undefined]'} WHATSAPP_TOKEN=${WHATSAPP_TOKEN ? '[set]' : '[undefined]'}`);
 
 if (!WHATSAPP_API_URL) {
   // falla temprana y legible para no llegar a undici
@@ -15,37 +15,42 @@ if (!WHATSAPP_TOKEN) {
   throw new Error("WHATSAPP_TOKEN no definida en process.env. Revisá .env o la configuración del proceso.");
 }
 
-async function sendReply(waId, text, opts = {}) {
-  const body = {
-    messaging_product: "whatsapp",
-    to: waId,
-    type: "text",
-    text: { body: text }
-  };
+async function sendAndLogReply({ messageId, waId, replyText, phoneNumberId }) {
+  const replyId = messageId ? `${messageId}:r1` : `r-${Date.now()}-${Math.floor(Math.random()*1000)}`;
 
-  if (opts.payload) Object.assign(body, opts.payload);
+  // 1) insertar PENDING (no falla si ya existió)
+  await insertReplyLog({
+    ReplyId: replyId,
+    MessageId: messageId || null,
+    WaId: waId,
+    ReplyText: replyText,
+    PhoneNumberId: phoneNumberId || null,
+    Status: 'PENDING'
+  });
 
+  // 2) llamar a sendReply (transport) — mantiene tu función original
   try {
-    const res = await fetch(WHATSAPP_API_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${WHATSAPP_TOKEN}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(body)
+    const result = await sendReply(waId, replyText); // asumiendo devuelve objeto o lanza error
+    // 3) actualizar registro a SENT con resultado
+    await updateReplyLogStatus({
+      ReplyId: replyId,
+      Status: 'SENT',
+      TransportResult: result,
+      ErrorMessage: null
     });
-
-    const json = await res.json();
-    if (!res.ok) {
-      logger.error(`sendReply failed for ${waId}: ${res.status} ${JSON.stringify(json)}`);
-      throw new Error("WhatsApp API error");
-    }
-    logger.info(`Mensaje enviado a ${waId} id:${json.messages?.[0]?.id || "n/a"}`);
-    return json;
+    logger.info(`Reply sent and logged ReplyId=${replyId} WaId=${waId}`);
+    return { ok: true, replyId, result };
   } catch (err) {
-    logger.error(`Error enviando mensaje a ${waId}: ${err.message}`);
+    // 4) actualizar registro a FAILED y propagar
+    await updateReplyLogStatus({
+      ReplyId: replyId,
+      Status: 'FAILED',
+      TransportResult: null,
+      ErrorMessage: err.message
+    });
+    logger.error(`sendAndLogReply failed ReplyId=${replyId} -> ${err.message}`);
     throw err;
   }
 }
 
-module.exports = { sendReply };
+module.exports = { sendAndLogReply };

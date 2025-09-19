@@ -1,0 +1,10 @@
+cd "C:\Proyectos\Node\WhatsAppCloud"
+
+# Inicializar git si no está
+git init
+
+# Asegurate de tener el remote (reemplazá <tu-usuario> y la URL si corresponde)
+git remote add origin https://github.com/diqueg/wa_edt.git
+
+# Traé referencias remotas por si existe algo
+git fetch origin
